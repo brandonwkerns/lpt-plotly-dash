@@ -1,0 +1,17 @@
+numpy==1.19
+importlib-metadata==4.13.0
+wheel
+numba==0.48
+llvmlite==0.31
+datashader==0.12
+netCDF5==1.5
+plotly
+dash
+dash-bootstrap-components
+psycopg2
+colorcet
+lxml
+gunicorn
+httplib2
+matplotlib
+cftime
