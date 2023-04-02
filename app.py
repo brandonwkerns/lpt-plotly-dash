@@ -219,8 +219,12 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
         showgrid=True,gridwidth=0.5, gridcolor='LightPink',
         title_text='Longitude')
+    
+    yticks = Y[::168]
+    yticklabels=[(dt.datetime(1990,1,1,0,0,0) + dt.timedelta(hours=x)).strftime('%m/%d<br>%Y') for x in yticks]
     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
-        showgrid=True,gridwidth=0.5, gridcolor='LightPink')
+        showgrid=True,gridwidth=0.5, gridcolor='LightPink',
+        tickmode='array', tickvals=yticks, ticktext=yticklabels)
 
     if lon_range_to_map == 'y':
         map_lon_range = lon_range
