@@ -219,7 +219,12 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
         showgrid=True,gridwidth=0.5, gridcolor='LightPink',
         title_text='Longitude')
-    
+    fig.update_coloraxes(colorbar_orientation='h')
+    fig.data[-1].colorbar.title='Rain Rate [mm/h]'
+    fig.data[-1].colorbar.y=1.005
+    fig.data[-1].colorbar.orientation='h'
+    fig.data[-1].colorbar.thickness=20
+
     yticks = Y[::168]
     yticklabels=[(dt.datetime(1990,1,1,0,0,0) + dt.timedelta(hours=x)).strftime('%m/%d<br>%Y') for x in yticks]
     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
