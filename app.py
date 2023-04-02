@@ -179,7 +179,6 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
 
     with xr.open_dataset(fn, use_cftime=True, cache=False) as DS:
 
-        print(DS['timestamp_stitched'].values)
         Y = np.array([(x - dt.datetime(1990,1,1,0,0,0)).total_seconds()/3600.0 for x in DS['timestamp_stitched'].values])
         skip = 3
         if mjo_or_all == 'mjo':
@@ -205,29 +204,14 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
         fn_time_lon = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/timelon/'+
             'imerg_time_lon.'+time_range_str+'.nc')
         with xr.open_dataset(fn_time_lon, use_cftime=True, cache=False) as DS:
-            Z = DS['precip'].data
-            # Z[Z<0.5] = np.nan
+            Z = np.double(DS['precip'].data)
             X = DS['lon'].data
-            # Y = DS['time'].data
             Y = [(x - dt.datetime(1990,1,1,0,0,0)).total_seconds()/3600 for x in DS['time'].values] #  np.arange(len(DS['time'].data))
-            cvs = ds.Canvas(plot_width=200, plot_height=1000, x_range=lon_range, y_range=(Y[0], Y[-1]))
-            # X2, Y2 = np.meshgrid(DS['lon'].data, Y)
+            cvs = ds.Canvas(plot_width=200, plot_height=1000, x_range=(0, 360.0), y_range=(Y[0], Y[-1]))
             da = xr.DataArray(data=Z, coords={'y':(['y',], Y),'x':(['x',], X)}, name='Test')
             da['_file_obj'] = None #Throws an error without this HACK.
-            da_img = tf.shade(cvs.raster(da))
-            # da_img = tf.shade(cvs.quadmesh(da))
-            print([np.min(da_img), np.mean(da_img), np.max(da_img)])
-            # da_img.data = da_img.data.astype('float32') * np.nanmean(np.nanmax(Z))/np.nanmean(da_img.data.astype('float32')) # Scale the values.
-            print(da_img)
-            import matplotlib.pyplot as plt
-            fig0=plt.figure()
-            plt.pcolormesh(da_img.x, da_img.y, da_img.data)
-            plt.colorbar()
-            plt.savefig('test.png')
-            plt.close(fig0)
-            print(np.nanmax(da_img.data))
-
-            fig.add_trace(go.Heatmap(x=da_img.x, y=da_img.y, z=da_img.data)) #, zmin=0.0, zmax=3.0)) #, colorscale=[0.0,3.0]))
+            da_img = cvs.raster(da)
+            fig.add_trace(go.Heatmap(x=da_img.x, y=da_img.y, z=da_img.data, zmin=0.0, zmax=3.0, colorscale=[[0, 'rgb(255,255,255)'], [1, 'rgb(0,0,0)']]))
             
     ## Axes range.
     fig.update_layout(xaxis_range=lon_range, yaxis_range=(Y[0], Y[-1]), #get_datetime_range_from_str(time_range_str),
