@@ -15,6 +15,8 @@ import plotly.graph_objects as go
 import colorcet as cc
 from dash import Dash, html, dcc, Input, Output, State, ctx
 import dash_bootstrap_components as dbc
+import datashader as ds
+from datashader import transfer_functions as tf
 
 import glob
 import sys
@@ -177,41 +179,52 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
 
     with xr.open_dataset(fn, use_cftime=True, cache=False) as DS:
 
+        Y = np.array([(x - dt.datetime(1990,1,1,0,0,0)).total_seconds()/3600.0 for x in DS['timestamp_stitched'].values])
+        skip = 3
         if mjo_or_all == 'mjo':
             for n, lptid in enumerate(mjo['lptid']):
                 this_lptid_idx = np.argwhere(10000*DS['lptid_stitched'].values == 10000*lptid).flatten()
                 if n == 0:
-                    fig = go.Figure(data=go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=DS['timestamp_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
-                    fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
+                    fig = go.Figure(data=go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], y=Y[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
+                    fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
                 else:
-                    fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=DS['timestamp_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
-                    fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
+                    fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], y=Y[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
+                    fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
         else:
             for n, lptid in enumerate(DS['lptid'].values):
                 this_lptid_idx = np.argwhere(10000*DS['lptid_stitched'].values == 10000*lptid).flatten()
                 if n == 0:
-                    fig = go.Figure(data=go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=DS['timestamp_stitched'][:][this_lptid_idx], mode='markers+lines', name=str(lptid)))
+                    fig = go.Figure(data=go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                     fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                 else:
-                    fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=DS['timestamp_stitched'][:][this_lptid_idx], mode='markers+lines', name=str(lptid)))
+                    fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                     fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
 
         ## Add time-lon.
         fn_time_lon = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/timelon/'+
             'imerg_time_lon.'+time_range_str+'.nc')
         with xr.open_dataset(fn_time_lon, use_cftime=True, cache=False) as DS:
-            Z = DS['precip'].data
-            Z[Z<0.5] = np.nan
-            fig.add_trace(go.Heatmap(x=DS['lon'], y=DS['time'], z=Z, zmin=0.0, zmax=3.0)) #, colorscale=[0.0,3.0]))
+            Z = np.double(DS['precip'].data)
+            X = DS['lon'].data
+            Y = [(x - dt.datetime(1990,1,1,0,0,0)).total_seconds()/3600 for x in DS['time'].values] #  np.arange(len(DS['time'].data))
+            cvs = ds.Canvas(plot_width=200, plot_height=1000, x_range=(0, 360.0), y_range=(Y[0], Y[-1]))
+            da = xr.DataArray(data=Z, coords={'y':(['y',], Y),'x':(['x',], X)}, name='Test')
+            da['_file_obj'] = None #Throws an error without this HACK.
+            da_img = cvs.raster(da)
+            fig.add_trace(go.Heatmap(x=da_img.x, y=da_img.y, z=da_img.data, zmin=0.0, zmax=3.0, colorscale=[[0, 'rgb(255,255,255)'], [1, 'rgb(0,0,0)']]))
             
     ## Axes range.
-    fig.update_layout(xaxis_range=lon_range, yaxis_range=get_datetime_range_from_str(time_range_str),
+    fig.update_layout(xaxis_range=lon_range, yaxis_range=(Y[0], Y[-1]), #get_datetime_range_from_str(time_range_str),
         height=800, margin={"r":0,"t":0,"l":0,"b":0})
     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
         showgrid=True,gridwidth=0.5, gridcolor='LightPink',
         title_text='Longitude')
+    
+    yticks = Y[::168]
+    yticklabels=[(dt.datetime(1990,1,1,0,0,0) + dt.timedelta(hours=x)).strftime('%m/%d<br>%Y') for x in yticks]
     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
-        showgrid=True,gridwidth=0.5, gridcolor='LightPink')
+        showgrid=True,gridwidth=0.5, gridcolor='LightPink',
+        tickmode='array', tickvals=yticks, ticktext=yticklabels)
 
     if lon_range_to_map == 'y':
         map_lon_range = lon_range
