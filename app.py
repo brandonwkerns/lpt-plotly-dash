@@ -186,7 +186,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                 this_lptid_idx = np.argwhere(10000*DS['lptid_stitched'].values == 10000*lptid).flatten()
                 if n == 0:
                     fig = go.Figure(data=go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], y=Y[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
-                    fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
+                    fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
                 else:
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], y=Y[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
                     fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
@@ -198,7 +198,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                 else:
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
-                    fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
+                    fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
 
         ## Add time-lon.
         fn_time_lon = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/timelon/'+
