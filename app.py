@@ -122,9 +122,9 @@ selections = html.Div([
 ])
 
 ## Graphs
-time_lon_section = html.Div(dcc.Loading(dcc.Graph(id='time-lon-graph'), id='time-lon-section'))
+time_lon_section = html.Div(dcc.Loading(dcc.Graph(id='time-lon-graph', config={'displayModeBar':True}), id='time-lon-section'))
 
-map_section = html.Div(dcc.Loading(dcc.Graph(id='map-graph'), id='map-section'))
+map_section = html.Div(dcc.Loading(dcc.Graph(id='map-graph', config={'displayModeBar':True}), id='map-section'))
 
 
 
