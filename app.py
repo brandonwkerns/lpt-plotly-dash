@@ -241,6 +241,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     lonaxis={'dtick':15,'gridcolor':'darkgrey','gridwidth':0.5,'griddash':'2px'},
                     lonaxis_range=map_lon_range)
     fig_map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig_map.update_layout(legend={'yanchor':'top', 'y':0.90})
 
     return fig, fig_map
 
