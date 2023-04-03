@@ -122,9 +122,9 @@ selections = html.Div([
 ])
 
 ## Graphs
-time_lon_section = html.Div(dcc.Loading(dcc.Graph(id='time-lon-graph'), id='time-lon-section'))
+time_lon_section = html.Div(dcc.Loading(dcc.Graph(id='time-lon-graph', config={'displayModeBar':True}), id='time-lon-section'))
 
-map_section = html.Div(dcc.Loading(dcc.Graph(id='map-graph'), id='map-section'))
+map_section = html.Div(dcc.Loading(dcc.Graph(id='map-graph', config={'displayModeBar':True}), id='map-section'))
 
 
 
@@ -186,7 +186,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                 this_lptid_idx = np.argwhere(10000*DS['lptid_stitched'].values == 10000*lptid).flatten()
                 if n == 0:
                     fig = go.Figure(data=go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], y=Y[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
-                    fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
+                    fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
                 else:
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], y=Y[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
                     fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx][::skip], lat=DS['centroid_lat_stitched'].values[this_lptid_idx][::skip], mode='markers+lines', name=str(lptid)))
@@ -198,7 +198,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     fig_map = go.Figure(data=go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                 else:
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
-                    fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid))) #, projection="natural earth"))
+                    fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
 
         ## Add time-lon.
         fn_time_lon = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/timelon/'+
@@ -241,6 +241,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     lonaxis={'dtick':15,'gridcolor':'darkgrey','gridwidth':0.5,'griddash':'2px'},
                     lonaxis_range=map_lon_range)
     fig_map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig_map.update_layout(legend={'yanchor':'top', 'y':0.90})
 
     return fig, fig_map
 
