@@ -167,18 +167,16 @@ def update_time_display(time_range_str):
 )
 def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map):
 
-    fn = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh13/systems/'+
+    fn = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh12/systems/'+
             'lpt_systems_imerg_'+time_range_str+'.nc')
-
     ## Read in MJO LPT stuff, if needed.
-    fn_mjo = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh13/systems/'+
+    fn_mjo = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh12/systems/'+
             'mjo_lpt_list_imerg_'+time_range_str+'.txt')
 
     if mjo_or_all == 'mjo':
         mjo = pd.read_fwf(fn_mjo)
 
     with xr.open_dataset(fn, use_cftime=True, cache=False) as DS:
-
         Y = np.array([(x - dt.datetime(1990,1,1,0,0,0)).total_seconds()/3600.0 for x in DS['timestamp_stitched'].values])
         skip = 3
         if mjo_or_all == 'mjo':
