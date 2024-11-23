@@ -13,10 +13,10 @@ whoami = getpass.getuser()
 ## and it needs to use the directory with permissions for www-data.
 ## Otherwise, it is developing/testing, and uses a directory with
 ## permissions for the local user.
-#if whoami == 'www-data':
-#   os.environ['NUMBA_CACHE_DIR']='/var/www/FLASKAPPS/lpt/numba_cache'
-#else:
-#   os.environ['NUMBA_CACHE_DIR']='/var/www/FLASKAPPS/lpt/numba_cache_testing'
+if whoami == 'www-data':
+   os.environ['NUMBA_CACHE_DIR']='/var/www/FLASKAPPS/lpt/numba_cache'
+else:
+   os.environ['NUMBA_CACHE_DIR']='/var/www/FLASKAPPS/lpt/numba_cache_testing'
 
 
 #import logging
