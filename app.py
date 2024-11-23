@@ -186,7 +186,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
 
     if mjo_or_all == 'mjo':
         mjo = pd.read_fwf(fn_mjo)
-
+        
     with xr.open_dataset(fn, use_cftime=True, cache=False) as DS:
         Y = np.array([(x - dt.datetime(1990,1,1,0,0,0)).total_seconds()/3600.0 for x in DS['timestamp_stitched'].values])
         skip = 3
@@ -209,8 +209,11 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                     fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
 
-        #fig.update_traces(marker=dict(color="blue"))
-        #fig_map.update_traces(marker=dict(color="blue"))
+        # Set up custom color palette
+        custom_colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+        
+        fig.update_layout(colorway=custom_colors)
+        fig_map.update_layout(colorway=custom_colors)
 
         ## Add time-lon.
         fn_time_lon = (data_dir_time_lon+'/imerg_time_lon.'+time_range_str+'.nc')
