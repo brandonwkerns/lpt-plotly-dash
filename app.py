@@ -229,7 +229,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
             
     ## Axes range.
     fig.update_layout(xaxis_range=lon_range, yaxis_range=(Y[0], Y[-1]), #get_datetime_range_from_str(time_range_str),
-        height=800, margin={"r":0,"t":0,"l":0,"b":0})
+        height=500, margin={"r":0,"t":0,"l":0,"b":0})
     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
         showgrid=True,gridwidth=0.5, gridcolor='LightPink',
         title_text='Longitude')
@@ -239,8 +239,16 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
     fig.data[-1].colorbar.orientation='h'
     fig.data[-1].colorbar.thickness=20
 
-    yticks = Y[::168]
+    n_tick_marks = 6
+    # nskip = 168
+    # if len(Y) > 100*24:
+    #     nskip = 24*30
+    # if len(Y) > 100*24:
+    #     nskip = 24*45
+    nskip = len(Y) // n_tick_marks
+    yticks = Y[::nskip] + [Y[-1]]
     yticklabels=[(dt.datetime(1990,1,1,0,0,0) + dt.timedelta(hours=x)).strftime('%m/%d<br>%Y') for x in yticks]
+    yticklabels += [(dt.datetime(1990,1,1,0,0,0) + dt.timedelta(hours=Y[-1])).strftime('%m/%d<br>%Y')]
     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', mirror=True,
         showgrid=True,gridwidth=0.5, gridcolor='LightPink',
         tickmode='array', tickvals=yticks, ticktext=yticklabels)
@@ -254,7 +262,7 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     lataxis={'dtick':15,'gridcolor':'darkgrey','gridwidth':0.5,'griddash':'2px'},
                     lonaxis={'dtick':15,'gridcolor':'darkgrey','gridwidth':0.5,'griddash':'2px'},
                     lonaxis_range=map_lon_range)
-    fig_map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig_map.update_layout(height=500, margin={"r":0,"t":40,"l":0,"b":0})
     fig_map.update_layout(legend={'yanchor':'top', 'y':0.90})
 
     return fig, fig_map
