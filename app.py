@@ -45,11 +45,12 @@ server = app.server
 mapbox_access_token = 'pk.eyJ1IjoiYnJhbmRvbndrZXJucyIsImEiOiJja3ZyOGNlZmcydTdrMm5xZ3d4ZWNlZXZpIn0.OkA0r6XFSY-Dx0bk7UPPZQ'
 
 
+
 ##
 ## Function Definitions
 ##
 
-def get_list_of_times(data_dir='/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh13/systems'):
+def get_list_of_times(data_dir='/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERGV7/data/imerg/g50_72h/thresh12/systems'):
     file_list = sorted(glob.glob(data_dir + '/lpt_systems_imerg_*.nc'))
     time_range_list = [x[-24:-3] for x in file_list]
     return time_range_list
@@ -60,6 +61,9 @@ def get_datetime_range_from_str(time_range_str):
     date0 = dt.datetime.strptime(date_str_split[0], '%Y%m%d%H')
     date1 = dt.datetime.strptime(date_str_split[1], '%Y%m%d%H')
     return (date0, date1)
+
+
+
 
 
 ##
@@ -73,7 +77,11 @@ banner = html.Div(
         html.P('Realtime tracking of MJO and large-scale convective systems.')],
     id='banner', style={'backgroundColor':'pink'})
 
-list_of_times = get_list_of_times()
+
+
+data_dir = '/home/orca/bkerns/lib/lpt/lpt-python-public/IMERGV7/data/imerg/g50_72h/thresh12/systems'
+
+list_of_times = get_list_of_times(data_dir)
 
 ## Selections
 selections = html.Div([
@@ -147,7 +155,7 @@ app.layout = serve_layout
     Input(component_id='time_period_selection', component_property='value')
 )
 def update_time_display(time_range_str):
-
+    
     date_str_split = time_range_str.split('_')
     pretty_date0 = dt.datetime.strptime(date_str_split[0], '%Y%m%d%H').strftime('%H00 UTC %Y-%m-%d')
     pretty_date1 = dt.datetime.strptime(date_str_split[1], '%Y%m%d%H').strftime('%H00 UTC %Y-%m-%d')
@@ -167,11 +175,12 @@ def update_time_display(time_range_str):
 )
 def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map):
 
-    fn = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh12/systems/'+
-            'lpt_systems_imerg_'+time_range_str+'.nc')
+    data_dir = '/home/orca/bkerns/lib/lpt/lpt-python-public/IMERGV7/data/imerg/g50_72h/thresh12/systems'
+    data_dir_time_lon = '/home/orca/bkerns/lib/lpt/lpt-python-public/IMERGV7/data/imerg/timelon'
+    
+    fn = (data_dir + '/lpt_systems_imerg_'+time_range_str+'.nc')
     ## Read in MJO LPT stuff, if needed.
-    fn_mjo = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/g50_72h/thresh12/systems/'+
-            'mjo_lpt_list_imerg_'+time_range_str+'.txt')
+    fn_mjo = (data_dir + '/mjo_lpt_list_imerg_'+time_range_str+'.txt')
 
     if mjo_or_all == 'mjo':
         mjo = pd.read_fwf(fn_mjo)
@@ -198,9 +207,11 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                     fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
 
+        fig.update_traces(marker=dict(color="blue"))
+        fig_map.update_traces(marker=dict(color="blue"))
+
         ## Add time-lon.
-        fn_time_lon = ('/home/orca/bkerns/realtime/analysis/lpt-python-public/IMERG/data/imerg/timelon/'+
-            'imerg_time_lon.'+time_range_str+'.nc')
+        fn_time_lon = (data_dir_time_lon+'/imerg_time_lon.'+time_range_str+'.nc')
         with xr.open_dataset(fn_time_lon, use_cftime=True, cache=False) as DS:
             Z = np.double(DS['precip'].data)
             X = DS['lon'].data
