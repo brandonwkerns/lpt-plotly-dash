@@ -69,82 +69,84 @@ def get_datetime_range_from_str(time_range_str):
 ##
 ## Set up layout.
 ##
-
-## Top Banner
-banner = html.Div(
-    children = [
-        html.H1('Large-Scale Precipitation Tracking (LPT)', className='banner-header'),
-        html.P('Realtime tracking of MJO and large-scale convective systems.')],
-    id='banner', style={'backgroundColor':'pink'})
-
-
-
-data_dir = '/home/orca/bkerns/lib/lpt/lpt-python-public/IMERGV7/data/imerg/g50_72h/thresh12/systems'
-
-list_of_times = get_list_of_times(data_dir)
-
-## Selections
-selections = html.Div([
-    dbc.Container(children=[
-        dbc.Row(children=[
-            dbc.Col(dcc.Dropdown(
-                    options=[x for x in reversed(list_of_times)], value=list_of_times[-1],
-                    id='time_period_selection', clearable=False), md=3),
-            dbc.Col(html.P('<-- Select a time period.', id='time-indicator'), md=9),
-        ]),
-        dbc.Row(children=[
-            dbc.Col(html.P('LPT Systems to Display: ', style={'textAlign':'right'}), md=3),
-            dbc.Col(dbc.RadioItems(
-                options = [
-                    {'label':'MJO LPTs', 'value':'mjo'},
-                    {'label':'All LPTs', 'value':'all'}
-                ],
-                value='mjo',
-                id='mjo_or_all_input',
-                inline=True
-                ), md=6),
-        ]),
-        dbc.Row(children=[
-            dbc.Col(html.P('Longitude Range: ', style={'textAlign':'right'}), md=3),
-            dbc.Col(dcc.RangeSlider(0.0, 360.0, # 1.0,
-                value=[50, 200],
-                # marks={x:{'label':str(x)} for x in np.arange(0,370,10)},
-                allowCross=False,
-                tooltip={"placement": "bottom", "always_visible": True},
-                id='lon_range_slider',
-                ), md=6),
-        ]),
-        dbc.Row(children=[
-            dbc.Col(html.P('Lon range applies to map? ', style={'textAlign':'right'}), md=3),
-            dbc.Col(dbc.RadioItems(
-                options = [
-                    {'label':'Yes', 'value':'y'},
-                    {'label':'No', 'value':'n'}
-                ],
-                value='n',
-                id='lon_range_to_map',
-                inline=True
-                ), md=6),
-        ]),
-    ])
-])
-
-## Graphs
-time_lon_section = html.Div(dcc.Loading(dcc.Graph(id='time-lon-graph', config={'displayModeBar':True}), id='time-lon-section'))
-
-map_section = html.Div(dcc.Loading(dcc.Graph(id='map-graph', config={'displayModeBar':True}), id='map-section'))
-
+#def set_up_layout():
 
 
 ## Combine into website
 ## In order to dynamically adapt to the date range selections available,
 ## Need to set the layout to a function.
 def serve_layout():
+
+    ## Top Banner
+    banner = html.Div(
+        children = [
+            html.H1('Large-Scale Precipitation Tracking (LPT)', className='banner-header'),
+            html.P('Realtime tracking of MJO and large-scale convective systems.')],
+        id='banner', style={'backgroundColor':'pink'})
+
+
+
+    data_dir = '/home/orca/bkerns/lib/lpt/lpt-python-public/IMERGV7/data/imerg/g50_72h/thresh12/systems'
+
+    list_of_times = get_list_of_times(data_dir)
+
+    ## Selections
+    selections = html.Div([
+        dbc.Container(children=[
+            dbc.Row(children=[
+                dbc.Col(dcc.Dropdown(
+                    options=[x for x in reversed(list_of_times)], value=list_of_times[-1],
+                    id='time_period_selection', clearable=False), md=3),
+                dbc.Col(html.P('<-- Select a time period.', id='time-indicator'), md=9),
+            ]),
+            dbc.Row(children=[
+                dbc.Col(html.P('LPT Systems to Display: ', style={'textAlign':'right'}), md=3),
+                dbc.Col(dbc.RadioItems(
+                    options = [
+                        {'label':'MJO LPTs', 'value':'mjo'},
+                        {'label':'All LPTs', 'value':'all'}
+                    ],
+                    value='mjo',
+                    id='mjo_or_all_input',
+                    inline=True
+                ), md=6),
+            ]),
+            dbc.Row(children=[
+                dbc.Col(html.P('Longitude Range: ', style={'textAlign':'right'}), md=3),
+                dbc.Col(dcc.RangeSlider(0.0, 360.0, # 1.0,
+                                        value=[50, 200],
+                                        # marks={x:{'label':str(x)} for x in np.arange(0,370,10)},
+                                        allowCross=False,
+                                        tooltip={"placement": "bottom", "always_visible": True},
+                                        id='lon_range_slider',
+                ), md=6),
+            ]),
+            dbc.Row(children=[
+                dbc.Col(html.P('Lon range applies to map? ', style={'textAlign':'right'}), md=3),
+                dbc.Col(dbc.RadioItems(
+                    options = [
+                        {'label':'Yes', 'value':'y'},
+                        {'label':'No', 'value':'n'}
+                    ],
+                    value='n',
+                    id='lon_range_to_map',
+                    inline=True
+                ), md=6),
+            ]),
+        ])
+    ])
+
+    ## Graphs
+    time_lon_section = html.Div(dcc.Loading(dcc.Graph(id='time-lon-graph', config={'displayModeBar':True}), id='time-lon-section'))
+    
+    map_section = html.Div(dcc.Loading(dcc.Graph(id='map-graph', config={'displayModeBar':True}), id='map-section'))
+
+
     return dbc.Container(children=[
-            dbc.Row([dbc.Col(banner, md=12),]),
-            dbc.Row([dbc.Col(selections, md=12),]),
-            dbc.Row([dbc.Col(time_lon_section, md=5), dbc.Col(map_section, md=7)]),
-        ], fluid=True)
+        dbc.Row([dbc.Col(banner, md=12),]),
+        dbc.Row([dbc.Col(selections, md=12),]),
+        dbc.Row([dbc.Col(time_lon_section, md=5), dbc.Col(map_section, md=7)]),
+    ], fluid=True)
 
 app.layout = serve_layout
 
@@ -207,8 +209,8 @@ def update_time_lon_plot(time_range_str, mjo_or_all, lon_range, lon_range_to_map
                     fig.add_trace(go.Scatter(x=DS['centroid_lon_stitched'].values[this_lptid_idx], y=Y[this_lptid_idx], mode='markers+lines', name=str(lptid)))
                     fig_map.add_trace(go.Scattergeo(lon=DS['centroid_lon_stitched'].values[this_lptid_idx], lat=DS['centroid_lat_stitched'].values[this_lptid_idx], mode='markers+lines', name=str(lptid)))
 
-        fig.update_traces(marker=dict(color="blue"))
-        fig_map.update_traces(marker=dict(color="blue"))
+        #fig.update_traces(marker=dict(color="blue"))
+        #fig_map.update_traces(marker=dict(color="blue"))
 
         ## Add time-lon.
         fn_time_lon = (data_dir_time_lon+'/imerg_time_lon.'+time_range_str+'.nc')
